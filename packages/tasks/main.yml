@@ -2,4 +2,5 @@
 
 - name: install packages list
   yum:
-    name: "{{packages.list}}"
+    name: "{{packages}}"
+ # with_items: {{packages}}

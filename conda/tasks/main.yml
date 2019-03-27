@@ -1,2 +1,13 @@
 ---
 # tasks file for conda
+
+- name: test for conda install
+  stat:
+    path: "{{conda.install_prefix}}/bin/conda"
+  register: conda_installed
+
+- name: install conda
+  include: install.yml
+  when: conda_installed.stat.exists == False
+
+
