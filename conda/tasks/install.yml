@@ -1,0 +1,17 @@
+---
+
+- name: get install script
+  get_url:
+    url: "{{conda.installer_url}}"
+    dest: /root/conda.sh
+    mode: 0755
+
+- name: execute install script
+  command: /root/conda.sh -b -u -p "{{conda.install_prefix}}"
+
+- name: mod path var for all users
+  template:
+    src: anaconda.sh.j2
+    dest: /etc/profile.d/anaconda.sh
+    mode: 0644
+

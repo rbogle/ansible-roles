@@ -2,4 +2,4 @@
 
 common:
   root_email: root@localhost.local
-
+  users: []

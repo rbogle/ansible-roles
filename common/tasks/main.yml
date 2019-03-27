@@ -9,7 +9,6 @@
     - ansible_os_family == "RedHat" 
     - ansible_distribution != "Fedora"
 
-
 - name: set root email
   lineinfile:
     regexp: "root:"
@@ -17,3 +16,10 @@
     dest: /etc/aliases
   notify: newaliases
   ignore_errors: True
+
+- name: add users
+  user:
+    name: "{{item.name}}"
+    state: present
+    uid:  "{{item.uid}}"
+  with_items: "{{common.users}}"
