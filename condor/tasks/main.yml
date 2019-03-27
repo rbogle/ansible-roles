@@ -1,0 +1,35 @@
+---
+
+- name: install condor repo
+  get_url:
+    url: "{{condor.condor_repo_file}}"
+    dest: /etc/yum.repos.d/
+    mode: 0744 
+
+- name: install signing key file
+  rpm_key:
+    state: present
+    key: "{{condor.signing_key_file}}"
+
+- name: install condor packages
+  yum:
+    name: "{{condor.packages}}"
+
+- name: copy over condor master config
+  file:
+    src: condor_config
+    dest: /etc/condor
+    mode: 0644
+
+- name: copy over condor local config
+  template:
+    src: condor_config.local.j2
+    dest: /etc/condor/condor_config.local
+    mode: 0644
+  notify: restart_condor
+
+- name: start condor service
+  service: 
+    name: condor
+    state: started
+    enabled: yes

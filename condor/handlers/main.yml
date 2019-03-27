@@ -1,0 +1,6 @@
+---
+
+- name: restart_condor
+  service:
+    name: condor
+    state: restarted 

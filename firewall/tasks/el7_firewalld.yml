@@ -1,18 +1,18 @@
 ---
 # docker/firewalld needs iptables-services
 - name: iptables-services installed
-  yum: name=iptables-services state=present
+  yum: name=iptables-services state=absent
 
 # ensure iptables is stopped and disabled
-- name: enable iptables-services
-  service: name=iptables enabled=true state=restarted
+#- name: enable iptables-services
+#  service: name=iptables enabled=true state=restarted
 
 # ensure firewalld is installed and running
 - name: firewalld service installed
   yum: name=firewalld state=present
 
 - name: firewalld service configured
-  service: name=firewalld enabled={{ firewall_opts.enabled }}
+  service: name=firewalld enabled={{ firewall_opts.enabled }} state={{ firewall_opts.state }}
 
 # Write configs
 - name: write extra ipsets

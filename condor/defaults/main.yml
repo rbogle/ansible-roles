@@ -1,0 +1,6 @@
+---
+condor:
+  condor_repo_file: https://research.cs.wisc.edu/htcondor/yum/repo.d/htcondor-stable-rhel7.repo
+  signing_key_file: http://research.cs.wisc.edu/htcondor/yum/RPM-GPG-KEY-HTCondor 
+  packages:
+    - condor.x86_64
