@@ -1,0 +1,29 @@
+---
+# Get local hostname
+- name: get local hostname
+  local_action: command hostname -f
+  register: localhostname
+  ignore_errors: True
+  when: install_run
+  
+# Send notification email
+- name: email notify
+  local_action: mail
+                host="{{email_host}}"
+                port="{{email_port}}"
+                subject="Ansible Install Run Completion"
+                to="{{notify_emails}}" 
+                from="Anisble@{{ localhostname.stdout }}"
+                body="An installation run is about to complete on {{ansible_hostname}}. 
+                The default IP address is {{ ansible_default_ipv4.address }}.
+                The host will reboot shortly."
+  ignore_errors: True
+  when: install_run
+ 
+# Do Reboot  
+- name: reboot server
+  command: /sbin/shutdown -r +1
+  async: 0
+  poll: 0
+  ignore_errors: true
+  when: rebootable or install_run

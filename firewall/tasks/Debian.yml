@@ -1,0 +1,24 @@
+---
+
+#ensure iptables is installed and running
+- name: iptables-installed
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - iptables
+    - iptables-persistent
+
+#write new iptables file to /etc/sysconfig/iptables
+- name: write new iptables files
+  when: firewall_opts.enabled == 'yes'
+  template:
+    src: iptables.j2
+    dest: /etc/iptables/rules.v4
+    backup: yes
+    owner: root
+    group: root
+    mode: 0600
+
+- name: reload new rules
+  shell: "iptables-restore < /etc/iptables/rules.v4"

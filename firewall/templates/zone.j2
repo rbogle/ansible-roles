@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+{% if item.target is defined %}
+<zone target="{{ item.target }}">
+{% else %}
+<zone>
+{% endif %}
+
+{% if item.services is defined and item.services|length > 0 %}
+{% for s in item.services %}
+  <service name="{{ s }}"/>
+{% endfor %}
+{% endif %}
+
+{% if item.sources is defined and item.sources|length > 0 %}
+{% for s in item.sources %}
+  <source {{ '{}="{}"'.format(s.type, s.value) }}/>
+{% endfor %}
+{% endif %}
+
+{% if item.ports is defined and item.ports|length > 0 %}
+{% for p in item.ports %}
+  <port port="{{ p.port }}" protocol="{{ p.proto }}"/>
+{% endfor %}
+{% endif %}
+
+{% if item.interfaces is defined and item.interfaces|length > 0 %}
+{% for i in item.interfaces %}
+  <interface name="{{ i }}"/>
+{% endfor %}
+{% endif %}
+
+</zone>

@@ -1,0 +1,15 @@
+{
+  {% if docker_experimental %}
+  "metrics-addr": "{{docker_metrics_addr}}",
+  "experimental": true,
+  {%- endif -%}
+  {% if docker_tls %} 
+  "tlsverify": true,
+  "tlscert": "{{docker_tls_destination}}/server-cert.pem",
+  "tlscacert": "{{docker_tls_destination}}/ca.pem",
+  "tlskey": "{{docker_tls_destination}}/server-key.pem",
+  "hosts": ["tcp://{{docker_tls_hostip}}:2376", "unix:///var/run/docker.sock"]
+  {% else %}
+  "hosts": ["tcp://0.0.0.0:2375", "unix:///var/run/docker.sock"]
+  {% endif %}
+}

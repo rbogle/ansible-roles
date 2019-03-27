@@ -1,0 +1,30 @@
+---
+# default variables for docker
+docker_use_overlayfs: True
+
+docker_tls: False
+docker_tls_destination: /var/lib/docker/tls
+docker_tls_gencerts: True
+docker_tls_hostip: "0.0.0.0"
+docker_experimental: False
+docker_metrics_addr: "0.0.0.0:9323"
+
+docker_var_size: "5G"
+docker_resize_var: False
+
+docker_prereq_pkgs:
+  - yum-utils
+  - device-mapper-persistent-data
+  - lvm2
+
+docker_remove_old:
+  - docker-io
+  - docker-common
+  - docker-selinux
+  - docker-engine
+
+docker_repo_url: https://download.docker.com/linux/centos/docker-ce.repo
+
+docker_packages:
+  - docker-ce
+  - docker-ce-selinux

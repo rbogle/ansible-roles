@@ -1,0 +1,6 @@
+---
+install_run: False
+rebootable: False
+notify_emails: "root@localhost.local"
+email_host: "localhost"
+email_port: "25"

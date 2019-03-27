@@ -1,0 +1,72 @@
+---
+
+# remove old version but dont fail
+- name: Remove old Dockers
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items: "{{ docker_remove_old }}"
+  ignore_errors: True
+
+- include: var_resize.yml
+  when: docker_resize_var
+
+# install a few prerequisites
+- name: Install DockerPrerequisites
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ docker_prereq_pkgs }}"
+
+# add the official ce repo
+- name: Install Docker Repos
+  command: yum-config-manager --add-repo "{{ docker_repo_url }}"
+  changed_when: False
+
+
+- name: Install Docker Packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{docker_packages}}"
+
+# - name: Install Docker SELinux if needed
+#   yum: 
+#     name: docker-ce-selinux
+#     state: present
+#   when: ansible_selinux.status == "enabled"
+
+- name: Config Docker Daemon for TLS
+  include: docker_tls.yml
+  when: docker_tls
+
+## write docker config file
+- name: create /etc/docker
+  file:
+    state: directory
+    path: /etc/docker
+    owner: root
+    group: root
+    mode: 0644
+
+- name: create daemon config file
+  template: 
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: 0644
+
+- name: add cleanup script to cron.daily
+  copy: 
+    src: docker_cleanup.sh
+    dest: /etc/cron.daily
+    owner: root
+    group: root
+    mode: 0755
+    
+- name: Enable and Start
+  service:
+    name: docker
+    state: restarted
+    enabled: yes

@@ -1,0 +1,19 @@
+---
+
+# non-fedora RedHat machines need EPEL
+- name: make sure EPEL is installed
+  package:
+    name: epel-release
+    state: latest
+  when:
+    - ansible_os_family == "RedHat" 
+    - ansible_distribution != "Fedora"
+
+
+- name: set root email
+  lineinfile:
+    regexp: "root:"
+    line: "root:\t\t{{common.root_email}}"
+    dest: /etc/aliases
+  notify: newaliases
+  ignore_errors: True

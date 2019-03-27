@@ -1,0 +1,41 @@
+---
+
+# ensure firewalld is disabled and stopped
+- name: firewalld service configured
+  service: name=firewalld enabled=false state=stopped
+  ignore_errors: yes
+
+# write new iptables file to /etc/sysconfig/iptables
+- name: write new iptables files
+  when: firewall_opts.enabled == 'yes'
+  template: 
+    src: iptables.j2
+    dest: /etc/sysconfig/iptables
+    backup: yes
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart iptables
+
+# ensure iptables service is installed and running
+- name: iptables service installed
+  yum: name=iptables-services state=present
+
+- name: iptables running
+  service: name=iptables enabled={{firewall_opts.enabled}} state={{firewall_opts.state}}
+
+# add moduels for iptables startup
+- name: modules for iptables
+  lineinfile:
+    regexp: "IPTABLES_MODULES="
+    line: "IPTABLES_MODULES=\"{{firewall_opts.modules| default('')}}\""
+    dest: /etc/sysconfig/iptables-configured
+  when: firewall_opts.modules is defined
+    
+
+
+# task for masquerade/NAT
+- name: ensure ipv4 forwarding is set
+  when: firewall_opts.masquerade is defined
+  sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present reload=yes
+  

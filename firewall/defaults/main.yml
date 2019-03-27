@@ -1,0 +1,6 @@
+---
+
+firewall_opts:
+    service: 'firewalld'
+    enabled: 'no'
+    state: 'stopped'

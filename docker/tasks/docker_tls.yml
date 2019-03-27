@@ -1,0 +1,43 @@
+---
+
+- name: move generate_certs.sh
+  copy:
+    src=generate_certs.sh
+    dest=/usr/local/sbin/generate_certs.sh
+    mode=755
+    owner=root
+    group=root
+
+- name: make cert destination folder
+  file:
+    dest: "{{ docker_tls_destination }}"
+    owner: root
+    group: root
+    mode: 700
+    state: directory
+
+- name: make cert destination folder in root
+  file:
+    dest: /root/docker_certs
+    owner: root
+    group: root
+    mode: 700
+    state: directory
+
+# try and generate certs but not if they exist
+- name: execute generate_certs.sh
+  command: /usr/local/sbin/generate_certs.sh
+  args:
+    chdir: "{{ docker_tls_destination }}"
+  when: docker_tls_gencerts
+
+
+# try to move client certs to root but dont overwrite
+- name: move client certs to root
+  shell: "mv client-*.pem /root/docker_certs && cp ca.pem /root/docker_certs"
+  args:
+    chdir: "{{ docker_tls_destination }}"
+  when: docker_tls_gencerts
+
+
+

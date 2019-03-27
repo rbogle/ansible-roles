@@ -1,0 +1,53 @@
+---
+# docker/firewalld needs iptables-services
+- name: iptables-services installed
+  yum: name=iptables-services state=present
+
+# ensure iptables is stopped and disabled
+- name: enable iptables-services
+  service: name=iptables enabled=true state=restarted
+
+# ensure firewalld is installed and running
+- name: firewalld service installed
+  yum: name=firewalld state=present
+
+- name: firewalld service configured
+  service: name=firewalld enabled={{ firewall_opts.enabled }}
+
+# Write configs
+- name: write extra ipsets
+  when: firewall_opts.ipsets is defined
+  template:
+    src: ipset.j2
+    dest: /etc/firewalld/ipsets/{{ item.name }}.xml
+  loop: "{{ firewall_opts.ipsets }}"
+
+- name: write extra services
+  when: firewall_opts.extra_services is defined
+  template:
+    src: service.j2
+    dest: /etc/firewalld/services/{{ item.name }}.xml
+  loop: "{{ firewall_opts.extra_services }}"
+  notify: restart firewalld
+
+- name: write zone definitions
+  when: firewall_opts.zones is defined
+  template:
+    src: zone.j2
+    dest: /etc/firewalld/zones/{{ item.name }}.xml
+  loop: "{{ firewall_opts.zones }}"
+  notify: restart firewalld
+
+- name: set default firewalld zone
+  when: firewall_opts.default_zone is defined
+  lineinfile:
+    regexp: "^DefaultZone=.+"
+    line: "DefaultZone={{ firewall_opts.default_zone }}"
+    path: /etc/firewalld/firewalld.conf
+  notify: restart firewalld
+
+# TODO add rich rules task
+# task for masquerade/NAT
+- name: ensure ipv4 forwarding is set
+  when: firewall_opts.masquerade is defined
+  sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present reload=yes

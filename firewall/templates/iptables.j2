@@ -1,0 +1,82 @@
+# Firewall configuration written by ansible configuration
+# Updated on:
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+{% if firewall_opts.special_nets is defined %}
+{% for net in firewall_opts.special_nets %}
+{% if net is defined %}
+{{ net.declaration }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if firewall_opts.special_nets is defined %}
+# special nets for grouped access
+{% for net in firewall_opts.special_nets %}
+{% if net is defined %}
+{% for range in net.ranges %}
+{{ range }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+# standard default rules
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+{% if firewall_opts.special_nets is defined %}
+# special net rules
+{% for net in firewall_opts.special_nets %}
+{% if net is defined %}
+{% for rule in net.rules %}
+{{ rule }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if firewall_opts.filter_table is defined %}
+{% if firewall_opts.filter_table.input is defined %}
+{% for rule in firewall_opts.filter_table.input %}
+{{ rule }}
+{% endfor %}
+{% endif %}
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+{% if firewall_opts.filter_table.forward is defined %}
+{% for rule in firewall_opts.filter_table.forward %}
+{{ rule }}
+{% endfor %}
+{% endif %}
+-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+{% if firewall_opts.filter_table.output is defined %}
+{% for rule in firewall_opts.filter_table.output %}
+{{ rule }}
+{% endfor %}
+{% endif %}
+{% else %}
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+{% endif %}
+COMMIT
+{% if firewall_opts.nat_table is defined %}
+*nat
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+{% if firewall_opts.nat_table.prerouting is defined %}
+{% for rule in firewall_opts.nat_table.prerouting %}
+{{ rule }}
+{% endfor %}
+{% endif %}
+{% if firewall_opts.nat_table.postrouting is defined %}
+{% for rule in firewall_opts.nat_table.postrouting %}
+{{ rule }}
+{% endfor %}
+{% endif %}
+{% if firewall_opts.nat_table.output is defined %}
+{% for rule in firewall_opts.nat_table.output %}
+{{ rule }}
+{% endfor %}
+{% endif %}
+COMMIT
+{% endif %}

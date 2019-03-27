@@ -1,0 +1,13 @@
+---
+
+# EL6 uses iptables
+- include: el6_iptables.yml
+  when: ansible_distribution_major_version == "6"
+
+# EL7 now uses firewalld
+- include: el7_firewalld.yml
+  when: ansible_distribution_major_version == "7" and firewall_opts.service == "firewalld"
+
+# EL7 now uses firewalld, but we want iptables
+- include: el7_iptables.yml
+  when: ansible_distribution_major_version == "7" and firewall_opts.service == "iptables"

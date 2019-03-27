@@ -1,0 +1,22 @@
+---
+
+#ensure iptables is installed and running
+- name: iptables installed
+  yum: name=iptables state=present
+
+- name: iptables running
+  service: name=iptables enabled={{firewall_opts.enabled}} state={{firewall_opts.state}}
+
+#write new iptables file to /etc/sysconfig/iptables
+- name: write new iptables files
+  when: firewall_opts.enabled == 'yes'
+  template: 
+    src: iptables.j2
+    dest: /etc/sysconfig/iptables
+    backup: yes
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart iptables
+  
+    
