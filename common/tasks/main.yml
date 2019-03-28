@@ -9,6 +9,12 @@
     - ansible_os_family == "RedHat" 
     - ansible_distribution != "Fedora"
 
+- name: do yum update
+  yum:
+    state: latest
+    name: '*'
+    exclude: kernel*
+
 - name: set root email
   lineinfile:
     regexp: "root:"
