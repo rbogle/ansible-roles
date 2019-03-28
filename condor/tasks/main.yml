@@ -16,10 +16,11 @@
     name: "{{condor.packages}}"
 
 - name: copy over condor master config
-  file:
+  copy:
     src: condor_config
-    dest: /etc/condor
+    dest: /etc/condor/condor_config
     mode: 0644
+  notify: restart_condor
 
 - name: copy over condor local config
   template:
